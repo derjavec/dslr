@@ -5,7 +5,9 @@ from describe import mean, ft_min
 from sklearn.preprocessing import MinMaxScaler
 
 def plot_histogram(df):
+    plt.figure(figsize=(12, 6))
     plt.bar(df.index, df.values)
+    plt.xticks(rotation=45)
     plt.ylabel("Scaled Dispersion (0 = most homogeneous)")
     plt.title("Homogeneity of Hogwarts Courses Between Houses")
     plt.show()

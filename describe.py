@@ -125,7 +125,7 @@ def main():
 
     df = pd.read_csv(sys.argv[1])
     stats = ['Count', 'Mean', 'Std', 'Min', '25%', '50%', '75%', 'Max']
-    df_des = describe(df_num, stats)
+    df_des = describe(df, stats)
     print(df_des)
 
 

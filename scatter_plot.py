@@ -2,14 +2,50 @@ import matplotlib.pyplot as plt
 import sys
 import pandas as pd
 from pandas.plotting import scatter_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
+import pandas as pd
 
 
-def scatter_plot(df: pd.DataFrame):
+def scatter_plot(df: pd.DataFrame, feature_1: str, feature_2: str) -> None:
+    """
+    Display a scatter plot comparing two Hogwarts courses.
+    Each point represents one student, colored by Hogwarts House.
+    """
+    if 'Hogwarts House' not in df.columns:
+        raise ValueError("The dataframe must contain a 'Hogwarts House' column.")
+
+    house_colors = {
+        'Gryffindor': '#7F0909',     # deep red
+        'Slytherin': '#0D6217',      # green
+        'Ravenclaw': '#000A90',      # dark blue
+        'Hufflepuff': '#EEE117'      # yellow
+    }
+
+    plt.figure(figsize=(8, 6))
+    sns.scatterplot(
+        data=df,
+        x=feature_1,
+        y=feature_2,
+        hue='Hogwarts House',
+        palette=house_colors,
+        s=30,
+        edgecolor=None
+    )
+
+    plt.title(f"{feature_1} vs {feature_2} by Hogwarts House", fontsize=14)
+    plt.xlabel(feature_1)
+    plt.ylabel(feature_2)
+    plt.legend(title='Hogwarts House')
+    plt.tight_layout()
+    plt.show()
+
+
+def scatter_plot_matrix(df: pd.DataFrame, feature_1, feature_2):
     """
     Plots a scatter matrix for the numeric features of the dataset
     and annotates the two most similar features.
     """
-    feature_1, feature_2 = analyse_correlation(df)
 
     fig, axes = plt.subplots(figsize=(12, 12))
     axes = scatter_matrix(df, figsize=(12, 12), ax=axes)
@@ -62,8 +98,10 @@ def compare_features(df: pd.DataFrame):
     df_num = df_num.drop('Index', axis=1)
 
     corr = df_num.corr()
+    feature_1, feature_2 = analyse_correlation(corr)
+    scatter_plot_matrix(corr, feature_1, feature_2)
+    scatter_plot(df, feature_1, feature_2)
 
-    scatter_plot(corr)
 
 
 def main():

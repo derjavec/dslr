@@ -98,7 +98,9 @@ def q75(df, col):
 def describe(df, stats):
     """Compute a manual description table for the DataFrame."""
     df_num = df.select_dtypes(include='number')
-    df_des = pd.DataFrame(index=stats, columns=df_num.columns.drop('Index'))
+    if 'Index' in df_num.columns:
+        df_num = df_num.drop(columns='Index')
+    df_des = pd.DataFrame(index=stats, columns=df_num.columns)
 
     func = {
         'Count': count,

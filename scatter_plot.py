@@ -3,7 +3,6 @@ import sys
 import pandas as pd
 from pandas.plotting import scatter_matrix
 import seaborn as sns
-import matplotlib.pyplot as plt
 import pandas as pd
 
 

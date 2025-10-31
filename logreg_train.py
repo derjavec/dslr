@@ -4,14 +4,14 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 from filter_features import get_filter_features
-from logistic_regresion import get_coeficients
+from logreg_train_utils import get_coeficients
 
 
 def get_sk_coeficients(df, classes):
     data = df.drop(columns=['Hogwarts House']).to_numpy(dtype=float)
     cls_to_id = {cls: i for i, cls in enumerate(classes)}
     index = df['Hogwarts House'].map(cls_to_id).to_numpy()
-    model = LogisticRegression(max_iter=5000, multi_class='multinomial', solver='lbfgs')
+    model = LogisticRegression(max_iter=5000, multi_class='ovr', solver='lbfgs')
     model.fit(data, index)
     
     weights = {}
@@ -21,6 +21,7 @@ def get_sk_coeficients(df, classes):
             'coef': model.coef_[i]
         }
     return weights
+
 
 def generate_csv_file(weights, name):
     rows = []
@@ -32,14 +33,9 @@ def generate_csv_file(weights, name):
 
     df = pd.DataFrame(rows)
     print(df)
-    df.to_csv(name)
+    df.to_csv(name, index=False)
 
-def main():
-    if len(sys.argv) != 2:
-        raise ValueError('Usage: please execute with the dataset path')
-
-    df = pd.read_csv(sys.argv[1])
-
+def train_model(df, my_weights_csv_name, sk_weights_csv_name):
     if 'Hogwarts House' not in df.columns:
         raise ValueError("The dataframe must contain a 'Hogwarts House' column.")
     classes = df['Hogwarts House'].unique()
@@ -47,8 +43,17 @@ def main():
 
     weights = get_coeficients(df_f_features)
     sk_weights = get_sk_coeficients(df_f_features, classes)
-    generate_csv_file(weights, "my_weights")
-    generate_csv_file(sk_weights, "sk_weights")
+    generate_csv_file(weights, "my_weights.csv")
+    generate_csv_file(sk_weights, "sk_weights.csv")
+
+
+def main():
+    if len(sys.argv) != 2:
+        raise ValueError('Usage: please execute with the dataset path')
+
+    df = pd.read_csv(sys.argv[1])
+    train_model(df)
+    
 
 
 if __name__ == '__main__':

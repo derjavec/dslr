@@ -117,13 +117,14 @@ def filter_features_by_description(df_des_per_house):
 
     return common_features
 
+
+
 def get_filter_features(df):
     df_des_per_house = get_description_per_house(df)
     common_features = filter_features_by_description(df_des_per_house)
     f_features = analyse_multicolinearity(common_features, df)
     
     return f_features
-
 
 def main():
     if len(sys.argv) != 2:

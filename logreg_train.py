@@ -11,7 +11,7 @@ def get_sk_coeficients(df, classes):
     data = df.drop(columns=['Hogwarts House']).to_numpy(dtype=float)
     cls_to_id = {cls: i for i, cls in enumerate(classes)}
     index = df['Hogwarts House'].map(cls_to_id).to_numpy()
-    model = LogisticRegression(max_iter=5000, multi_class='ovr', solver='lbfgs')
+    model = LogisticRegression(max_iter=5000,  solver='lbfgs')
     model.fit(data, index)
     
     weights = {}
@@ -32,7 +32,6 @@ def generate_csv_file(weights, name):
         rows.append(row)
 
     df = pd.DataFrame(rows)
-    print(df)
     df.to_csv(name, index=False)
 
 def train_model(df, my_weights_csv_name, sk_weights_csv_name):
@@ -43,8 +42,8 @@ def train_model(df, my_weights_csv_name, sk_weights_csv_name):
 
     weights = get_coeficients(df_f_features)
     sk_weights = get_sk_coeficients(df_f_features, classes)
-    generate_csv_file(weights, "my_weights.csv")
-    generate_csv_file(sk_weights, "sk_weights.csv")
+    generate_csv_file(weights, my_weights_csv_name)
+    generate_csv_file(sk_weights, sk_weights_csv_name)
 
 
 def main():
@@ -52,7 +51,7 @@ def main():
         raise ValueError('Usage: please execute with the dataset path')
 
     df = pd.read_csv(sys.argv[1])
-    train_model(df)
+    train_model(df, "my_weights.csv", "sk_weights.csv")
     
 
 

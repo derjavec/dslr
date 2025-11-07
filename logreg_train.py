@@ -20,7 +20,7 @@ def get_sk_coeficients(df, classes):
     cls_to_id = {cls: i for i, cls in enumerate(classes)}
     index = df["Hogwarts House"].map(cls_to_id).to_numpy()
 
-    model = LogisticRegression(max_iter=5000, solver="lbfgs")
+    model = LogisticRegression(max_iter=10000, solver="lbfgs")
     model.fit(data, index)
 
     weights = {}

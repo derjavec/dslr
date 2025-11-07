@@ -3,7 +3,6 @@ import sys
 import pandas as pd
 from pandas.plotting import scatter_matrix
 import seaborn as sns
-import pandas as pd
 
 
 def scatter_plot(df: pd.DataFrame, feature_1: str, feature_2: str) -> None:
@@ -12,7 +11,8 @@ def scatter_plot(df: pd.DataFrame, feature_1: str, feature_2: str) -> None:
     Each point represents one student, colored by Hogwarts House.
     """
     if 'Hogwarts House' not in df.columns:
-        raise ValueError("The dataframe must contain a 'Hogwarts House' column.")
+        raise ValueError("The dataframe must contain a\
+                          'Hogwarts House' column.")
 
     house_colors = {
         'Gryffindor': '#7F0909',     # deep red
@@ -100,7 +100,6 @@ def compare_features(df: pd.DataFrame):
     feature_1, feature_2 = analyse_correlation(corr)
     scatter_plot_matrix(corr, feature_1, feature_2)
     scatter_plot(df, feature_1, feature_2)
-
 
 
 def main():

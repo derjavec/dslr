@@ -1,8 +1,9 @@
 import pandas as pd
 import sys
 
+from typing import cast
 
-def count(df, col):
+def count(df, col) -> int:
     """Return the number of non-NaN values in the specified column."""
     total = 0
     for value in df[col]:
@@ -11,7 +12,7 @@ def count(df, col):
     return total
 
 
-def mean(df, col):
+def mean(df, col) -> float:
     """Return the mean of the non-NaN values in the specified column."""
     total = 0
     cnt = 0
@@ -24,7 +25,7 @@ def mean(df, col):
     return 0
 
 
-def std(df, col):
+def std(df, col) -> float:
     """Return the sample standard deviation of the specified column."""
     m = mean(df, col)
     s = 0
@@ -95,12 +96,61 @@ def q75(df, col):
     return quartile(df, col, 0.75)
 
 
+def exc_kurtosis_bonus(df: pd.DataFrame, col) -> float:
+    """ Returns the Excess-kurtosis of a distribution"""
+    data = cast(pd.Series, df[col]).dropna()
+    n = len(data)
+    if n < 4:
+        return float('nan')
+
+    std_ = std(df, col)
+    if  std_ == 0:
+        return float('nan')
+    mean_ = mean(df, col)
+
+    # G2 ​= (n(n+1))/((n−1)(n−2)(n−3))  *  ∑​[((x​−μ)/s) ** 4]  -  (3(n−1)**2)​ / ((n−2)(n−3))
+    #    = ∑​[(x​−μ)**4] / s**4  *  (n(n+1))/((n−1)(n−2)(n−3)) - (3(n−1)**2)​ / ((n−2)(n−3))
+    #    = ((∑​[(x​−μ)**4] / s**4)  *  ((n**2+n) / (n−1)(n−2)(n−3)) ) - (3(n−1)**2)​ / (n−2)(n−3)
+    #    = (∑​[(x​−μ)**4] * (n**2+n) / (n−1)(n−2)(n−3)*s**4 ) - (3(n−1)**2)​ / (n−2)(n−3)
+    summed = sum( (x - mean_)**4 for x in data )
+    e = (n-1) * (n-2) * (n-3) * std_**4
+    excess = (3 * (n - 1)**2) / ((n-2) * (n-3))
+    kurtosis = (summed * (n**2 + n)) / e - excess
+    return kurtosis
+
+# Skewness explains the asymetry of a distribution
+# Positive Skew (Skew > 0): The distribution has a tail on the right the mean is greater than the median.
+# Negative Skew (Skew < 0): The distribution has a tail on the left. The mean is less than the median.
+# Zero Skew (Skew ≈ 0): The distribution is mostly symmetrical. The mean and median are close.
+def skewness_bonus(df: pd.DataFrame, col):
+    data = cast(pd.Series, df[col]).dropna()
+    n = len(data)
+    if n < 3:
+        return float('nan')
+
+    std_ = std(df, col)
+    if  std_ == 0:
+        return float('nan')
+    mean_ = mean(df, col)
+
+    # G1 ​= N/((N−1)(N−2)) * ∑​[ ((x​−μ) / s) **3 ]
+    #    = N * ∑​[ ((x​−μ) / s) **3 ] / ((N−1)(N−2))
+    #    = N * ∑​[ ((x​−μ)**3 / s**3] ) / ((N−1)(N−2))
+    #    = N * ∑​[(x​−μ)**3] / s**3 / ((N−1)(N−2))
+    #    = N * ∑​[(x​−μ)**3] / ((N−1)(N−2) s**3)
+
+    summed = sum( (x - mean_)**3 for x in data )
+    e = (n-1) * (n-2) * (std_**3)
+    skew = n * summed / e
+    return skew
+
+
 def describe(df, stats):
     """Compute a manual description table for the DataFrame."""
     df_num = df.select_dtypes(include='number')
     if 'Index' in df_num.columns:
         df_num = df_num.drop(columns='Index')
-    df_des = pd.DataFrame(index=stats, columns=df_num.columns)
+    df_describe = pd.DataFrame(index=stats, columns=df_num.columns)
 
     func = {
         'Count': count,
@@ -110,14 +160,21 @@ def describe(df, stats):
         '25%': q25,
         '50%': q50,
         '75%': q75,
-        'Max': ft_max
+        'Max': ft_max,
+        'Kurt': exc_kurtosis_bonus,
+        'Skew': skewness_bonus,
     }
 
-    for col in df_des.columns:
+    for col in df_describe.columns:
         for key in stats:
-            df_des.loc[key, col] = func[key](df_num, col)
+            df_describe.loc[key, col] = func[key](df_num, col)
 
-    return df_des
+    # To compare with pandas functions
+    # for col in df_describe.columns:
+    #     df_describe.loc['pdKurt', col] = df_num[col].kurt()
+    #     df_describe.loc['pdSkew', col] = df_num[col].skew()
+
+    return df_describe
 
 
 def main():
@@ -126,7 +183,7 @@ def main():
         raise ValueError('Usage: please execute with the dataset path')
 
     df = pd.read_csv(sys.argv[1])
-    stats = ['Count', 'Mean', 'Std', 'Min', '25%', '50%', '75%', 'Max']
+    stats = ['Count', 'Mean', 'Std', 'Min', '25%', '50%', '75%', 'Max', 'Kurt', 'Skew']
     df_des = describe(df, stats)
     print(df_des)
 

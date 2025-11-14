@@ -74,7 +74,12 @@ def gradient_descent(
     return intercept, coef
 
 
-def train_model(X: np.ndarray, Y: np.ndarray, alpha: float, iterations: int):
+def train_model(
+    X: np.ndarray,
+    Y: np.ndarray,
+    alpha: float,
+    iterations: int
+):
     """
     Train a linear model using gradient descent
     until convergence or max iteration.
@@ -99,6 +104,7 @@ def train_model(X: np.ndarray, Y: np.ndarray, alpha: float, iterations: int):
         mse = np.mean(error ** 2) / 2
 
         if abs(mse_old - mse) < epsilon:
+            iterations = i + 1
             break
 
         mse_old = mse
@@ -111,7 +117,7 @@ def train_model(X: np.ndarray, Y: np.ndarray, alpha: float, iterations: int):
         y_min + intercept * (y_max - y_min) - np.sum(coef_original * x_min)
     )
 
-    return intercept_original, coef_original, i + 1
+    return intercept_original, coef_original, iterations
 
 
 def get_coeficients(df: pd.DataFrame):

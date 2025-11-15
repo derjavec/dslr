@@ -399,12 +399,12 @@ def test_models(df_test: pd.DataFrame, weights_paths: Dict[str, str], class_col_
     df_filtered = get_features_test(df_test)
     print("Filtered test data shape:", df_filtered.shape)
 
-    results = []
     for name, path in weights_paths.items():
         if not os.path.exists(path):
             print(f"Warning: Weights file not found, skipping {name}: {path}")
             continue
         try:
+            results = []
             model = LogRegOvAClassifier.from_file(path, class_col_name)
             for row in df_filtered.iterrows():
                 ft_row = row[1].drop(labels=[class_col_name, "Index"]).to_numpy(dtype=float)
@@ -444,10 +444,10 @@ def main():
 
     # Define file paths
     weights_files = {
-        "My Model (Batch)": os.path.join(args.weights_dir, "my_weights_batch.csv"),
-        "My Model (Mini-Batch)": os.path.join(args.weights_dir, "my_weights_mini.csv"),
-        "My Model (Stochastic)": os.path.join(args.weights_dir, "my_weights_stoch.csv"),
-        "SKLearn Model": os.path.join(args.weights_dir, "sk_weights.csv"),
+        "My_Model_(Batch)": os.path.join(args.weights_dir, "my_weights_batch.csv"),
+        "My_Model_(Mini-Batch)": os.path.join(args.weights_dir, "my_weights_mini.csv"),
+        "My_Model_(Stochastic)": os.path.join(args.weights_dir, "my_weights_stoch.csv"),
+        "SKLearn_Model": os.path.join(args.weights_dir, "sk_weights.csv"),
     }
     class_col = "Hogwarts House"
 
@@ -461,17 +461,17 @@ def main():
 
             # Train custom models
             print("Training MyModel (Batch)...")
-            train_custom_model(df_train.copy(), weights_files["My Model (Batch)"], method="batch")
+            train_custom_model(df_train.copy(), weights_files["My_Model_(Batch)"], method="batch")
 
             print("Training MyModel (Mini-Batch)...")
-            train_custom_model(df_train.copy(), weights_files["My Model (Mini-Batch)"], method="mini-batch")
+            train_custom_model(df_train.copy(), weights_files["My_Model_(Mini-Batch)"], method="mini-batch")
 
             print("Training MyModel (Stochastic)...")
-            train_custom_model(df_train.copy(), weights_files["My Model (Stochastic)"], method="stochastic")
+            train_custom_model(df_train.copy(), weights_files["My_Model_(Stochastic)"], method="stochastic")
 
             # Train sklearn model
             print("Training SKLearn Model...")
-            train_sklearn_model(df_train.copy(), weights_files["SKLearn Model"])
+            train_sklearn_model(df_train.copy(), weights_files["SKLearn_Model"])
 
             print("--- All models trained and saved. ---")
 
